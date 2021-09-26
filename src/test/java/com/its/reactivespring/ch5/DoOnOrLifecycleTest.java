@@ -16,6 +16,10 @@ import java.util.function.Consumer;
 
 @Log4j2
 public class DoOnOrLifecycleTest {
+    private static void accept(Signal<Integer> integerSignal) {
+        log.info("Entering and leaving signals.forEach with parameter : {} ", integerSignal);
+    }
+
     @Test
     public void doOn() {
         log.info("Entering DoOnOrLifecycleTest : doOn");
@@ -35,45 +39,30 @@ public class DoOnOrLifecycleTest {
                                 sink.complete();
                                 log.info("--Leaving Flux.create : accept");
                             })
-                            .doOnNext(new Consumer<Integer>() {
-                                @Override
-                                public void accept(Integer integer) {
-                                    log.info("Entering Flux.create.doOnNext to add an integer to list");
-                                    nextValues.add(integer);
-                                    log.info("Leaving Flux.create.doOnNext after adding an integer to list");
-                                }
+                            .doOnNext(integer -> {
+                                log.info("Entering Flux.create.doOnNext to add an integer to list");
+                                nextValues.add(integer);
+                                log.info("Leaving Flux.create.doOnNext after adding an integer to list");
                             })
-                            .doOnEach(new Consumer<Signal<Integer>>() {
-                                @Override
-                                public void accept(Signal<Integer> integerSignal) {
-                                    log.info("Entering Flux.create.doOnEach to add a signal to list");
-                                    signals.add(integerSignal);
-                                    log.info("Leaving Flux.create.doOnEach after adding a signal to list");
-                                }
+                            .doOnEach(integerSignal -> {
+                                log.info("Entering Flux.create.doOnEach to add a signal to list");
+                                signals.add(integerSignal);
+                                log.info("Leaving Flux.create.doOnEach after adding a signal to list");
                             })
-                            .doOnSubscribe(new Consumer<Subscription>() {
-                                @Override
-                                public void accept(Subscription subscription) {
-                                    log.info("Entering Flux.create.doOnSubscribe to add a subscription to list");
-                                    subscriptions.add(subscription);
-                                    log.info("Leaving Flux.create.doOnSubscribe after adding a subscription to list");
-                                }
+                            .doOnSubscribe(subscription -> {
+                                log.info("Entering Flux.create.doOnSubscribe to add a subscription to list");
+                                subscriptions.add(subscription);
+                                log.info("Leaving Flux.create.doOnSubscribe after adding a subscription to list");
                             })
-                            .doOnError(IllegalArgumentException.class, new Consumer<Throwable>() {
-                                @Override
-                                public void accept(Throwable throwable) {
-                                    log.info("Entering Flux.create.doOnError to add a throwable to list");
-                                    exceptions.add(throwable);
-                                    log.info("Leaving Flux.create.doOnError after adding a throwable to list");
-                                }
+                            .doOnError(IllegalArgumentException.class, (Consumer<Throwable>) throwable -> {
+                                log.info("Entering Flux.create.doOnError to add a throwable to list");
+                                exceptions.add(throwable);
+                                log.info("Leaving Flux.create.doOnError after adding a throwable to list");
                             })
-                            .doFinally(new Consumer<SignalType>() {
-                                @Override
-                                public void accept(SignalType signalType) {
-                                    log.info("Entering Flux.create.doFinally to add a signalType to list");
-                                    finallySignals.add(signalType);
-                                    log.info("Leaving Flux.create.doFinally after adding a signalType to list");
-                                }
+                            .doFinally(signalType -> {
+                                log.info("Entering Flux.create.doFinally to add a signalType to list");
+                                finallySignals.add(signalType);
+                                log.info("Leaving Flux.create.doFinally after adding a signalType to list");
                             });
 
         log.info("Executing StepVerifier");
@@ -85,54 +74,29 @@ public class DoOnOrLifecycleTest {
 
         log.info("Logging and asserting signals info");
         signals
-            .forEach(new Consumer<Signal<Integer>>() {
-                @Override
-                public void accept(Signal<Integer> integerSignal) {
-                    log.info("Entering and leaving signals.forEach with parameter : {} ", integerSignal);
-                }
-            });
+            .forEach(DoOnOrLifecycleTest::accept);
         Assert.assertEquals(4, signals.size());
 
 
         log.info("Logging and asserting finallysignal info");
         finallySignals
-                .forEach(new Consumer<SignalType>() {
-                    @Override
-                    public void accept(SignalType signalType) {
-                        log.info("Entering and leaving finallySignals.forEach with parameter : {} ", signalType);
-                    }
-                });
+                .forEach(signalType -> log.info("Entering and leaving finallySignals.forEach with parameter : {} ", signalType));
         Assert.assertEquals(finallySignals.size(), 1);
 
         log.info("Logging and asserting subscriptions info");
         subscriptions
-            .forEach(new Consumer<Subscription>() {
-                @Override
-                public void accept(Subscription subscription) {
-                    log.info("Entering and leaving subscriptions.forEach with parameter : {} ", subscription);
-                }
-            });
+            .forEach(subscription -> log.info("Entering and leaving subscriptions.forEach with parameter : {} ", subscription));
         Assert.assertEquals(subscriptions.size(), 1);
 
         log.info("Logging and asserting exceptions info");
         exceptions
-            .forEach(new Consumer<Throwable>() {
-                @Override
-                public void accept(Throwable throwable) {
-                    log.info("Entering and leaving exceptions.forEach with parameter : {} ", throwable);
-                }
-            });
+            .forEach(throwable -> log.info("Entering and leaving exceptions.forEach with parameter : {} ", throwable));
         Assert.assertEquals(exceptions.size(), 1);
         Assert.assertTrue(exceptions.get(0) instanceof IllegalArgumentException);
 
         log.info("Logging and asserting next values info");
         nextValues
-            .forEach(new Consumer<Integer>() {
-                @Override
-                public void accept(Integer integer) {
-                    log.info("Entering and leaving nextValues.forEach with parameter : {} ", integer);
-                }
-            });
+            .forEach(integer -> log.info("Entering and leaving nextValues.forEach with parameter : {} ", integer));
         Assert.assertEquals(nextValues.size(), 3);
         Assert.assertEquals(Arrays.asList(1, 2, 3), nextValues);
 
