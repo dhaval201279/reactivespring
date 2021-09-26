@@ -12,6 +12,9 @@ import reactor.test.StepVerifier;
  * A Publisher<T> produces data, and a Subscriber<T> consumes data. Sometimes, you will want something that acts as a bridge,
  * performing double duty and satisfying the contract for both Publisher<T> and Subscriber<T> - useful if you need to adapt from one
  * type to the other, for example. Processor<T> is fit for purpose here.
+ *
+ * EmitterProcessor acts like a java.util.Queue<T>, allowing 1 end to pump the data into it and the other
+ * to consume that data
  * */
 @Log4j2
 public class EmitterProcessorTest {

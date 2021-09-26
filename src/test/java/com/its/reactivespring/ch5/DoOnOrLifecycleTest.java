@@ -31,6 +31,10 @@ public class DoOnOrLifecycleTest {
 
         Flux<Integer> on = Flux
                             .<Integer>create(sink -> {
+                                /**
+                                 * Programmatically create a Flux with the capability of emitting multiple elements in a
+                                 * synchronous or asynchronous manner through the FluxSink API
+                                 * */
                                 log.info("--Entering Flux.create : accept");
                                 sink.next(1);
                                 sink.next(2);
@@ -40,26 +44,46 @@ public class DoOnOrLifecycleTest {
                                 log.info("--Leaving Flux.create : accept");
                             })
                             .doOnNext(integer -> {
+                                /**
+                                 * doOnNext : Add behavior (side-effect) triggered when the Flux emits an item.
+                                 * */
                                 log.info("Entering Flux.create.doOnNext to add an integer to list");
                                 nextValues.add(integer);
                                 log.info("Leaving Flux.create.doOnNext after adding an integer to list");
                             })
                             .doOnEach(integerSignal -> {
+                                /**
+                                 * doOnEach : Add behavior (side-effects) triggered when the Flux emits an item, fails with an error
+                                 * or completes successfully.
+                                 * */
                                 log.info("Entering Flux.create.doOnEach to add a signal to list");
                                 signals.add(integerSignal);
                                 log.info("Leaving Flux.create.doOnEach after adding a signal to list");
                             })
                             .doOnSubscribe(subscription -> {
+                                /**
+                                 * Add behavior (side-effect) triggered when the Flux is being subscribed, that is to say
+                                 * when a Subscription has been produced by the Publisher and is being passed to the
+                                 * Subscriber.onSubscribe(Subscription).
+                                 * */
                                 log.info("Entering Flux.create.doOnSubscribe to add a subscription to list");
                                 subscriptions.add(subscription);
                                 log.info("Leaving Flux.create.doOnSubscribe after adding a subscription to list");
                             })
                             .doOnError(IllegalArgumentException.class, (Consumer<Throwable>) throwable -> {
+                                /**
+                                 * doOnError : Add behavior (side-effect) triggered when the Flux completes with an error matching the
+                                 * given exception type.
+                                 * */
                                 log.info("Entering Flux.create.doOnError to add a throwable to list");
                                 exceptions.add(throwable);
                                 log.info("Leaving Flux.create.doOnError after adding a throwable to list");
                             })
                             .doFinally(signalType -> {
+                                /**
+                                 * doFinally : Add behavior (side-effect) triggered after the Flux terminates for any reason,
+                                 * including cancellation.
+                                 * */
                                 log.info("Entering Flux.create.doFinally to add a signalType to list");
                                 finallySignals.add(signalType);
                                 log.info("Leaving Flux.create.doFinally after adding a signalType to list");
