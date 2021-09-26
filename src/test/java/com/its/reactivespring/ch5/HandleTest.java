@@ -37,47 +37,37 @@ public class HandleTest {
         log.info("Entering and leaving HandleTest : handle with max : {} and noToErrors as : {} ", max, noToErrors);
         return Flux
                 .range(0, max)
-                .handle(new BiConsumer<Integer, SynchronousSink<Integer>>() {
-                    @Override
-                    public void accept(Integer value, SynchronousSink<Integer> sink) {
-                        log.info("Entering Flux.range.handle.accept with value : {} & synchronousSink : {}", value, sink);
-                        var upTo = Stream
-                                    .iterate(0, new Predicate<Integer>() {
-                                        @Override
-                                        public boolean test(Integer i) {
-                                            log.info("Checking integer : {} in predicate", i);
-                                            return i < noToErrors;
-                                        }
-                                    }, new UnaryOperator<Integer>() {
-                                        @Override
-                                        public Integer apply(Integer i) {
-                                            log.info("Checking integer : {} in UnaryOperator", i);
-                                            return i + 1;
-                                        }
-                                    })
-                                    .collect(Collectors.toList());
+                .handle((value, sink) -> {
+                    log.info("Entering Flux.range.handle.accept with value : {} & synchronousSink : {}", value, sink);
+                    var upTo = Stream
+                                .iterate(0, i -> {
+                                    log.info("Checking integer : {} in predicate", i);
+                                    return i < noToErrors;
+                                }, i -> {
+                                    log.info("Checking integer : {} in UnaryOperator", i);
+                                    return i + 1;
+                                })
+                                .collect(Collectors.toList());
 
-                        log.info("Stream : {} iterated with size as : {} ", upTo, upTo.size());
+                    log.info("Stream : {} iterated with size as : {} ", upTo, upTo.size());
 
-                        if(upTo.contains(value)) {
-                            log.info("list contains integer : {} ", value);
-                            sink
-                                .next(value);
-                            log.info("Returning from 1st if");
-                            return;
-                        }
-
-                        if(value == noToErrors) {
-                            log.info("integer contains error with count as  : {} ", noToErrors);
-                            sink
-                                .error(new IllegalArgumentException("No. 4 for you!"));
-                            log.info("Returning from 2nd if");
-                            return;
-                        }
-                        log.info("Marking the sink as complete");
-                        sink.complete();
+                    if(upTo.contains(value)) {
+                        log.info("list contains integer : {} ", value);
+                        sink
+                            .next(value);
+                        log.info("Returning from 1st if");
+                        return;
                     }
 
+                    if(value == noToErrors) {
+                        log.info("integer contains error with count as  : {} ", noToErrors);
+                        sink
+                            .error(new IllegalArgumentException("No. 4 for you!"));
+                        log.info("Returning from 2nd if");
+                        return;
+                    }
+                    log.info("Marking the sink as complete");
+                    sink.complete();
                 });
     }
 }
