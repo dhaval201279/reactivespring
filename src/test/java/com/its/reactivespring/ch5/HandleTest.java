@@ -12,6 +12,18 @@ import java.util.function.UnaryOperator;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+/**
+ * you may want a little more control. You might have some complex logic, and you want to see
+ * all the pieces in one place. In this case, you use Flux#handle or Mono#handle.
+ *
+ * Let’s look at an example that analyzes values in the stream and emits them as long as they’re less than
+ * an upper bound max. If processing completes, then the stream emits a completion signal.
+ * If a value in the stream equals the error parameter, then an error arrives.
+ *
+ * @ below example : The following example creates two streams. The first emits an exception, and so the stream completes
+ * exceptionally, and never emits a completion signal.
+ * The second stream never emits an error signal and so completes and emits a completion signal.
+ * */
 @Log4j2
 public class HandleTest {
 
