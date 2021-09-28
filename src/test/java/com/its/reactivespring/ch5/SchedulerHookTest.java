@@ -34,23 +34,17 @@ public class SchedulerHookTest {
 
         log.info("Configuring schedulers via schedulehook");
         Schedulers
-            .onScheduleHook("my hook", new Function<Runnable, Runnable>() {
-                @Override
-                public Runnable apply(Runnable runnable) {
-                    log.info("Entering Schedulers.onScheduleHook.apply");
-                    return new Runnable() {
-                        @Override
-                        public void run() {
-                            log.info("Entering Schedulers.onScheduleHook.apply.run");
-                            var threadName = Thread.currentThread().getName();
-                            counter.incrementAndGet();
-                            log.info("Counter incremented : {} ", counter);
-                            log.info("Before execution : {} " , threadName);
-                            runnable.run();
-                            log.info("After execution : {} " , threadName);
-                        }
-                    };
-                }
+            .onScheduleHook("my hook", runnable -> {
+                log.info("Entering Schedulers.onScheduleHook.apply");
+                return () -> {
+                    log.info("Entering Schedulers.onScheduleHook.apply.run");
+                    var threadName = Thread.currentThread().getName();
+                    counter.incrementAndGet();
+                    log.info("Counter incremented : {} ", counter);
+                    log.info("Before execution : {} " , threadName);
+                    runnable.run();
+                    log.info("After execution : {} " , threadName);
+                };
             });
         log.info("Publishing data");
         Flux<Integer> integerFlux = Flux
