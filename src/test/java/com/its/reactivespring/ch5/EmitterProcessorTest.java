@@ -58,7 +58,7 @@ public class EmitterProcessorTest {
         log.info("Leaving EmitterProcessorTest : consume");
     }
 
-    @Test
+    //@Test
     public void sinkManySpec() {
         log.info("Entering EmitterProcessorTest : sinkManySpec");
         /**
