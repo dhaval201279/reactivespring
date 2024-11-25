@@ -63,6 +63,31 @@
 			<version>4.12</version>
 			<scope>test</scope>
 		</dependency>
+		<dependency>
+			<groupId>io.gatling</groupId>
+			<artifactId>gatling-core</artifactId>
+			<version>3.11.0</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>io.gatling</groupId>
+			<artifactId>gatling-http</artifactId>
+			<version>3.11.0</version>
+			<scope>test</scope>
+		</dependency>
+		<!-- Charts Dependency (for reports) -->
+		<dependency>
+			<groupId>io.gatling.highcharts</groupId>
+			<artifactId>gatling-charts-highcharts</artifactId>
+			<version>3.11.0</version>
+			<scope>test</scope>
+		</dependency>
+		<!-- Scala Library -->
+		<dependency>
+			<groupId>org.scala-lang</groupId>
+			<artifactId>scala-library</artifactId>
+			<version>2.13.12</version> <!-- Use the version compatible with your Scala code -->
+		</dependency>
 	</dependencies>
 
 	<build>
@@ -79,7 +104,63 @@
 					</excludes>
 				</configuration>
 			</plugin>
+			<!-- Scala Maven Plugin -->
+			<plugin>
+				<groupId>net.alchim31.maven</groupId>
+				<artifactId>scala-maven-plugin</artifactId>
+				<version>4.9.0</version> <!-- Use the latest stable version -->
+				<executions>
+					<execution>
+						<goals>
+							<goal>compile</goal>
+							<goal>testCompile</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+			<!--<plugin>
+				<groupId>io.gatling</groupId>
+				<artifactId>gatling-maven-plugin</artifactId>
+				<version>4.5.0</version>
+				<executions>
+					<execution>
+						<goals>
+							<goal>test</goal>
+						</goals>
+					</execution>
+				</executions>
+				<configuration>
+					<simulationClass>com.its.reactivespring.ParallelExecutionPerformanceTestSimulation</simulationClass> &lt;!&ndash; Update with your simulation class &ndash;&gt;
+					<reportsOnly></reportsOnly> &lt;!&ndash; Leave empty for default behavior &ndash;&gt;
+					<noReports>false</noReports> &lt;!&ndash; Ensure reports are generated &ndash;&gt;
+				</configuration>
+			</plugin>-->
 		</plugins>
 	</build>
-
+	<profiles>
+		<profile>
+			<id>gatling-tests</id>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>io.gatling</groupId>
+						<artifactId>gatling-maven-plugin</artifactId>
+						<version>4.5.0</version>
+						<executions>
+							<execution>
+								<goals>
+									<goal>test</goal>
+								</goals>
+							</execution>
+						</executions>
+						<configuration>
+							<simulationClass>com.its.reactivespring.ParallelExecutionPerformanceTestSimulation</simulationClass> <!-- Update with your simulation class -->
+							<reportsOnly></reportsOnly> <!-- Leave empty for default behavior -->
+							<noReports>false</noReports> <!-- Ensure reports are generated -->
+						</configuration>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+	</profiles>
 </project>

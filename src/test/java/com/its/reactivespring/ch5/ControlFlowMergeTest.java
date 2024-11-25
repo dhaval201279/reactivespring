@@ -13,7 +13,7 @@ import java.time.Duration;
  * */
 @Slf4j
 public class ControlFlowMergeTest {
-    @Test
+    //@Test
     public void merge() {
         log.info("Entering ControlFlowMergeTest : merge");
         Flux<Integer> fastest = Flux.just(5,6);

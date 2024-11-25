@@ -34,3 +34,7 @@ These additional references should also help you:
 ## Missing R2DBC Driver
 
 Make sure to include a [R2DBC Driver](https://r2dbc.io/drivers/) to connect to your database.
+
+# Command to run all tests including Gatling tests
+````
+mvn clean test -Pgatling-tests
