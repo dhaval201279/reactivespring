@@ -28,7 +28,7 @@ public class Jdk17ApplicationWithIsolatedExceptionForEachParallelThread {
         //List<String> users = Arrays.asList("1", "2", "3", "4", "5", "6", "7", "8", "9", "10");
 
         // Generate list with 25K string objects
-        List<String> users = generateUserList(AppConstants.USER_LIST_SIZE_100K);
+        List<String> users = generateUserList(AppConstants.USER_LIST_SIZE_500K);
         log.info("user list size : {}", users.size());
 
         stopWatch.start("JDK - with CompletableFuture");
