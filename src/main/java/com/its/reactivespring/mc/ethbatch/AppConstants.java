@@ -1,4 +1,4 @@
-package com.its.reactivespring.mc.ethoca;
+package com.its.reactivespring.mc.ethbatch;
 
 public class AppConstants {
     public static final int USER_LIST_SIZE_50K = 50_000;

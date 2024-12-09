@@ -1,10 +1,9 @@
-package com.its.reactivespring.mc.ethoca;
+package com.its.reactivespring.mc.ethbatch;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.util.StopWatch;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -45,7 +44,7 @@ public class Jdk17ApplicationWithIsolatedExceptionForEachParallelThread {
                     .map(user -> CompletableFuture.runAsync(() -> {
                         try {
                             log.info("Processing user: {}", user);
-                            processUser(user);
+                            processSomeBizLogic(user);
                             successCount.incrementAndGet();
                         } catch (Exception e) {
                             log.error("Error occurred while processing user {}: {}", user, e.getMessage());
@@ -74,7 +73,7 @@ public class Jdk17ApplicationWithIsolatedExceptionForEachParallelThread {
         log.info("Leaving withMapUsingJDK");
     }
 
-    private static void processUser(String user) throws Exception {
+    private static void processSomeBizLogic(String user) throws Exception {
         log.info("Entering processUser with user: {}", user);
         Thread.sleep(AppConstants.SUCCESSFULL_PROCESSING_SLEEP_TIME); // Simulate processing delay
         if (Integer.parseInt(user) % 5 == 0) {

@@ -1,4 +1,4 @@
-package com.its.reactivespring.mc.ethoca;
+package com.its.reactivespring.mc.ethbatch;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -94,6 +94,9 @@ public class ReactiveApplicationWithIsolatedExceptionForEachParallelThread {
       log.info("Leaving withDoOnNext");
    }*/
 
+    /**
+     * doOnNext approach does not isolate error of each thread
+     */
     private static void withDoOnNext() {
         StopWatch stopWatch = new StopWatch();
 
@@ -107,7 +110,7 @@ public class ReactiveApplicationWithIsolatedExceptionForEachParallelThread {
                 .doOnNext(user -> {
                     try {
                         log.info("Processing user : {}", user);
-                        processUser(user);
+                        processSomeBizLogic(user);
                         log.info("Processing user completed within doOnNext: {}", user);
                     } catch (Exception e) {
                         throw new RuntimeException("Error processing user " + user, e);
@@ -127,7 +130,7 @@ public class ReactiveApplicationWithIsolatedExceptionForEachParallelThread {
 
     }
 
-    private static void processUser(String user) throws Exception {
+    private static void processSomeBizLogic(String user) throws Exception {
         log.info("Entering processUser with user : {} ", user);
         //try {
         Thread.sleep(AppConstants.SUCCESSFULL_PROCESSING_SLEEP_TIME);
@@ -166,7 +169,7 @@ public class ReactiveApplicationWithIsolatedExceptionForEachParallelThread {
                 .flatMap(user ->
                         Mono.fromCallable(() -> {
                                     log.info("Entering processUser from Callable : {} ", user);
-                                    processUser(user);
+                                    processSomeBizLogic(user);
                                     log.info("Leaving processUser from Callable  : {}", user);
                                     successCount.incrementAndGet();
                                     return user;
