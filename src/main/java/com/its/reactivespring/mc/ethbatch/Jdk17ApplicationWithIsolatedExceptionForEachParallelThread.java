@@ -24,11 +24,11 @@ public class Jdk17ApplicationWithIsolatedExceptionForEachParallelThread {
         StopWatch stopWatch = new StopWatch();
         log.info("Entering withFlatMapUsingJDK");
 
-        //List<String> users = Arrays.asList("1", "2", "3", "4", "5", "6", "7", "8", "9", "10");
+        //List<String> objectList = Arrays.asList("1", "2", "3", "4", "5", "6", "7", "8", "9", "10");
 
         // Generate list with 25K string objects
-        List<String> users = generateUserList(AppConstants.USER_LIST_SIZE_500K);
-        log.info("user list size : {}", users.size());
+        List<String> objectList = generateObjectList(AppConstants.USER_LIST_SIZE_500K);
+        log.info("object list size : {}", objectList.size());
 
         stopWatch.start("JDK - with CompletableFuture");
         AtomicInteger successCount = new AtomicInteger(0);
@@ -39,15 +39,16 @@ public class Jdk17ApplicationWithIsolatedExceptionForEachParallelThread {
 
         // Submit tasks for parallel processing
         List<CompletableFuture<Void>> futures =
-                users
+                objectList
                     .stream()
-                    .map(user -> CompletableFuture.runAsync(() -> {
+                    .map(anObject -> CompletableFuture.runAsync(() -> {
                         try {
-                            log.info("Processing user: {}", user);
-                            processSomeBizLogic(user);
+                            log.info("Processing anObject : {} via CompletableFuture.runAsync", anObject);
+                            processSomeBizLogic(anObject);
+                            log.info("anObject : {} processing completed via CompletableFuture.runAsync", anObject);
                             successCount.incrementAndGet();
                         } catch (Exception e) {
-                            log.error("Error occurred while processing user {}: {}", user, e.getMessage());
+                            log.error("Error occurred while processing anObject {}: {}", anObject, e.getMessage());
                             failureCount.incrementAndGet();
                         }
                     }, executorService))
@@ -67,24 +68,24 @@ public class Jdk17ApplicationWithIsolatedExceptionForEachParallelThread {
         // Log results
         log.info("Success count: {}", successCount.get());
         log.info("Failure count: {}", failureCount.get());
-        log.info("## Processing completed for user list size : {} ", users.size());
+        log.info("## Processing completed for user list size : {} ", objectList.size());
         stopWatch.stop();
         log.info("Time taken by jdk - with CompletableFuture : {} ms ", stopWatch.getLastTaskTimeMillis());
         log.info("Leaving withMapUsingJDK");
     }
 
-    private static void processSomeBizLogic(String user) throws Exception {
-        log.info("Entering processUser with user: {}", user);
+    private static void processSomeBizLogic(String aStringObj) throws Exception {
+        log.info("Entering processSomeBizLogic with aStringObj: {}", aStringObj);
         Thread.sleep(AppConstants.SUCCESSFULL_PROCESSING_SLEEP_TIME); // Simulate processing delay
-        if (Integer.parseInt(user) % 5 == 0) {
-            log.info("User " + user + " is erroneous (divisible by 9). Hence throwing exception after sleeping for 1 more sec");
+        if (Integer.parseInt(aStringObj) % 5 == 0) {
+            log.info("User " + aStringObj + " is erroneous (divisible by 9). Hence throwing exception after sleeping for 1 more sec");
             Thread.sleep(AppConstants.FAILURE_PROCESSING_SLEEP_TIME);
-            throw new Exception("User " + user);
+            throw new Exception("User " + aStringObj);
         }
-        log.info("Leaving processUser with user: {}", user);
+        log.info("Leaving processSomeBizLogic with aStringObj : {} after sleeping for .02 sec", aStringObj);
     }
 
-    public static List<String> generateUserList(int size) {
+    public static List<String> generateObjectList(int size) {
         return IntStream
                 .rangeClosed(1, size)
                 .mapToObj(String::valueOf)

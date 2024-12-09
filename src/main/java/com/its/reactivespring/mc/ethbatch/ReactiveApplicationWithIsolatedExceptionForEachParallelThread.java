@@ -58,7 +58,6 @@ public class ReactiveApplicationWithIsolatedExceptionForEachParallelThread {
 
     public static void main(String[] args) {
         log.info("Entering main");
-        //SpringApplication.run(ReactiveApplicationWithIsolatedExceptionForEachParallelThread.class, args);
         //withDoOnNext();
         withFlatMap();
         //withMap();
@@ -101,19 +100,19 @@ public class ReactiveApplicationWithIsolatedExceptionForEachParallelThread {
         StopWatch stopWatch = new StopWatch();
 
         log.info("Entering withDoOnNext");
-        List <String> users = Arrays.asList("1","2","3","4","5","6","7","8","9","10");
+        List <String> objectList = Arrays.asList("1","2","3","4","5","6","7","8","9","10");
         stopWatch.start("Rx - with doOnNext");
         Flux
-                .fromIterable(users)
+                .fromIterable(objectList)
                 .parallel(AppConstants.PARALLELISM)
                 .runOn(Schedulers.boundedElastic())
-                .doOnNext(user -> {
+                .doOnNext(anObject -> {
                     try {
-                        log.info("Processing user : {}", user);
-                        processSomeBizLogic(user);
-                        log.info("Processing user completed within doOnNext: {}", user);
+                        log.info("Processing anObject : {}", anObject);
+                        processSomeBizLogic(anObject);
+                        log.info("Processing anObject completed within doOnNext: {}", anObject);
                     } catch (Exception e) {
-                        throw new RuntimeException("Error processing user " + user, e);
+                        throw new RuntimeException("Error processing anObject " + anObject, e);
                     }
                 })
                 .doOnError(error -> {
@@ -130,66 +129,58 @@ public class ReactiveApplicationWithIsolatedExceptionForEachParallelThread {
 
     }
 
-    private static void processSomeBizLogic(String user) throws Exception {
-        log.info("Entering processUser with user : {} ", user);
-        //try {
+    private static void processSomeBizLogic(String aStringObj) throws Exception {
+        log.info("Entering processSomeBizLogic with aStringObj : {} ", aStringObj);
         Thread.sleep(AppConstants.SUCCESSFULL_PROCESSING_SLEEP_TIME);
-        if (Integer.parseInt(user) % 5 == 0) {
-            log.info("User " + user + " is erroneous (divisible by 9). Hence throwing exception after sleeping for 1 more sec");
+        if (Integer.parseInt(aStringObj) % 5 == 0) {
+            log.info("User " + aStringObj + " is erroneous (divisible by 9). Hence throwing exception after sleeping for 1 more sec");
             Thread.sleep(AppConstants.FAILURE_PROCESSING_SLEEP_TIME);
-            throw new Exception("User " + user);
+            throw new Exception("User " + aStringObj);
         }
-      /*} catch (InterruptedException e) {
-         log.error("Interrupted exception occurred e : {} ", e);
-         e.printStackTrace();
-      } catch (Exception e) {
-         log.error("Exception occurred e : {} ", e);
-         e.printStackTrace();
-      }*/
-        log.info("Leaving processUser with user : {} after sleeping for .02 sec", user);
+        log.info("Leaving processSomeBizLogic with aStringObj : {} after sleeping for .02 sec", aStringObj);
     }
 
     public static void withFlatMap() {
+        StopWatch stopWatch = new StopWatch();
         log.info("Entering withFlatMap");
-        //List<String> users = Arrays.asList("1", "2", "3", "4", "5", "6", "7", "8", "9", "10");
+        //List<String> objectList = Arrays.asList("1", "2", "3", "4", "5", "6", "7", "8", "9", "10");
 
         // Generate list with 25K string objects
-        List<String> users = generateUserList(AppConstants.USER_LIST_SIZE_500K);
-        log.info("user list size : {}", users.size());
+        List<String> objectList = generateObjectList(AppConstants.USER_LIST_SIZE_500K);
+        log.info("object list size : {}", objectList.size());
 
-        StopWatch stopWatch = new StopWatch();
+
         stopWatch.start("Rx - with flatMap");
         // Counters for success and failure
         AtomicInteger successCount = new AtomicInteger(0);
         AtomicInteger failureCount = new AtomicInteger(0);
         Flux
-                .fromIterable(users)
+                .fromIterable(objectList)
                 .parallel(AppConstants.PARALLELISM)
                 .runOn(Schedulers.boundedElastic())
-                .flatMap(user ->
+                .flatMap(anObject ->
                         Mono.fromCallable(() -> {
-                                    log.info("Entering processUser from Callable : {} ", user);
-                                    processSomeBizLogic(user);
-                                    log.info("Leaving processUser from Callable  : {}", user);
+                                    log.info("Processing anObject : {} via Callable", anObject);
+                                    processSomeBizLogic(anObject);
+                                    log.info("anObject : {} processing completed via Callable", anObject);
                                     successCount.incrementAndGet();
-                                    return user;
+                                    return anObject;
 
                                 })
                                 .doOnError(error -> {
-                                    log.error("Error occurred while processing user {}: {}", user, error.getMessage());
+                                    log.error("Error occurred while processing anObject {}: {}", anObject, error.getMessage());
                                     failureCount.incrementAndGet();
                                 })
                                 .onErrorResume(error -> {
-                                    log.info("Entering onErrorResume");
+                                    log.info("Ignoring error and resuming execution");
                                     return Mono.empty();
                                 }) // Skip the errored user
                 )
                 .sequential()
                 .doOnComplete(() -> {
-
                     log.info("Success count: {}", successCount.get());
                     log.info("Failure count: {}", failureCount.get());
-                    log.info("$$ Processing completed for user list size : {} ", users.size());
+                    log.info("$$ Processing completed for object list size : {} ", objectList.size());
                 })
                 .blockLast();
         stopWatch.stop();
@@ -197,7 +188,7 @@ public class ReactiveApplicationWithIsolatedExceptionForEachParallelThread {
         log.info("Leaving withFlatMap");
     }
 
-    public static List<String> generateUserList(int size) {
+    public static List<String> generateObjectList(int size) {
         return IntStream
                 .rangeClosed(1, size)
                 .mapToObj(String::valueOf)
