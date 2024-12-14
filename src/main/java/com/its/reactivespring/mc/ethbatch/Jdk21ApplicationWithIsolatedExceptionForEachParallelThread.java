@@ -12,7 +12,7 @@ import java.util.stream.IntStream;
 
 @SpringBootApplication
 @Slf4j
-public class Jdk17ApplicationWithIsolatedExceptionForEachParallelThread {
+public class Jdk21ApplicationWithIsolatedExceptionForEachParallelThread {
 
     public static void main(String[] args) {
         log.info("Entering main");

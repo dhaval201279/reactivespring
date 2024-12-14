@@ -35,7 +35,7 @@ class ParallelExecutionPerformanceTestSimulation extends Simulation {
   def jdkProcessUser(user: String): Unit = {
     Try {
       // Call the static method directly (update package name as needed)
-      com.its.reactivespring.mc.ethbatch.Jdk17ApplicationWithIsolatedExceptionForEachParallelThread.withFlatMapUsingJDK()
+      com.its.reactivespring.mc.ethbatch.Jdk21ApplicationWithIsolatedExceptionForEachParallelThread.withFlatMapUsingJDK()
     } match {
       case Success(_) => jdkSuccessCount.incrementAndGet()
       case Failure(e) =>
