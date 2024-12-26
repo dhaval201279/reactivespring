@@ -4,6 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.util.StopWatch;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
@@ -14,7 +15,7 @@ import java.util.stream.IntStream;
 
 @SpringBootApplication
 @Slf4j
-public class Jdk21ApplicationWithIsolatedExceptionForEachParallelVirtualThread {
+public class VirtualThreadJdk21ApplicationWithIsolatedExceptionForEachParallelThread {
     public static void main(String[] args) {
         log.info("Entering main");
         withFlatMapUsingVirtualThreads();
@@ -25,6 +26,7 @@ public class Jdk21ApplicationWithIsolatedExceptionForEachParallelVirtualThread {
         StopWatch stopWatch = new StopWatch();
         log.info("Entering withFlatMapUsingVirtualThreads");
 
+        //List<String> users = Arrays.asList("1", "2", "3", "4", "5", "6", "7", "8", "9", "10");
         // Generate list with 25K string objects
         List<String> users = generateUserList(AppConstants.USER_LIST_SIZE_500K);
         log.info("User list size: {}", users.size());
@@ -33,7 +35,14 @@ public class Jdk21ApplicationWithIsolatedExceptionForEachParallelVirtualThread {
         AtomicInteger successCount = new AtomicInteger(0);
         AtomicInteger failureCount = new AtomicInteger(0);
 
-        try (ExecutorService executorService = Executors.newVirtualThreadPerTaskExecutor()) {
+        var virtualThreadExecutor = Executors.newThreadPerTaskExecutor(
+                Thread
+                        .ofVirtual()
+                        .name("jdk21-vt-", 0)
+                        .factory()
+        );
+
+        try (virtualThreadExecutor) {
             // Submit tasks for parallel processing
             List<CompletableFuture<Void>> futures =
                     users.stream()
@@ -46,7 +55,7 @@ public class Jdk21ApplicationWithIsolatedExceptionForEachParallelVirtualThread {
                                     log.error("Error occurred while processing user {}: {}", user, e.getMessage());
                                     failureCount.incrementAndGet();
                                 }
-                            }, executorService))
+                            }, virtualThreadExecutor))
                             .toList(); // Collect CompletableFuture<Void> for each user
 
             // Wait for all tasks to complete
